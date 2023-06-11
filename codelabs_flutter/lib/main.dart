@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:js_util';
 
 import 'package:codelabs_flutter/kunde.dart';
 import 'package:codelabs_flutter/product.dart';
@@ -27,7 +26,7 @@ class MyApp extends StatelessWidget {
         title: 'Namer App',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.black87),
         ),
         home: MyHomePage(),
       ),
