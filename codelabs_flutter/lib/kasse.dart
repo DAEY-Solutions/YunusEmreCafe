@@ -1,11 +1,7 @@
 class Kasse{
-  double saldo;
+  static double saldo = 0;
 
-  Kasse({
-    required this.saldo
-});
-
-  double addSaldo(double change){
+  static double addSaldo(double change){
     saldo = saldo + change;
     return saldo;
   }

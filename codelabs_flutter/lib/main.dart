@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:codelabs_flutter/data_warehouse.dart';
 import 'package:codelabs_flutter/kunde.dart';
 import 'package:codelabs_flutter/product.dart';
 import 'package:codelabs_flutter/schulden_objekt.dart';
@@ -35,156 +35,56 @@ class MyApp extends StatelessWidget {
 }
 
 class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-  var sortiment = [];
-  var kunden = [];
-  var kunde;
-  var kassen_kunde;
-  var current_produkte = [];
-  var favorites = <WordPair>[];
-  var abkassieren = true;
-  var kasse = Kasse(saldo: 0);
-
-  void getNext() {
-    current = WordPair.random();
-    notifyListeners();
-  }
-
-  void updateKunde(k) {
-    kunde = k;
-    notifyListeners();
-  }
-
-  void updateKassenKunde(k) {
-    kassen_kunde = k;
-    notifyListeners();
-  }
-
-  void updateProdukte(p) {
-    current_produkte.add(p);
-    notifyListeners();
-  }
-
-  void toggleFavorite() {
-    if (favorites.contains(current)) {
-      favorites.remove(current);
-    } else {
-      favorites.add(current);
-    }
-    notifyListeners();
-  }
-
-  void addProductToSortiment(name, price, pathToImage, initialAmount) {
-    sortiment.add(Product(
-        name: name,
-        pathToImage: pathToImage,
-        preis: price,
-        menge: initialAmount));
-    notifyListeners();
-  }
-
-  void addKunde(vorname, nachname, saldo) {
-    kunden.add(Kunde(vorname: vorname, nachname: nachname, budget: saldo));
-    notifyListeners();
-  }
-
-  void clearCurrentProdukte() {
-    current_produkte = [];
-    notifyListeners();
-  }
-
-  void addCosts(products_i, products_n) {
-    for (var i in products_i) {
-      var j = products_n[products_i.indexOf(i)];
-      while (j > 0) {
-        kunde.addSchuldenObjekt(i);
-        j--;
-      }
-    }
-    notifyListeners();
-  }
 
   void testdaten() {
-    kunden.add(Kunde(vorname: "Emre", nachname: "Yumurtaci", budget: 0));
-    kunden.add(Kunde(vorname: "Muhammed", nachname: "Kilinc", budget: 0));
-    kunden.add(Kunde(vorname: "Kerem", nachname: "Özbudak", budget: 0));
-    kunden.add(Kunde(vorname: "Sezgin", nachname: "Karaca", budget: 0));
+    DataWarehouse.kunden.add(Kunde(vorname: "Emre", nachname: "Yumurtaci", budget: 0));
+    DataWarehouse.kunden.add(Kunde(vorname: "Muhammed", nachname: "Kilinc", budget: 0));
+    DataWarehouse.kunden.add(Kunde(vorname: "Kerem", nachname: "Özbudak", budget: 0));
+    DataWarehouse.kunden.add(Kunde(vorname: "Sezgin", nachname: "Karaca", budget: 0));
 
-    sortiment.add(Product(
+    DataWarehouse.sortiment.add(Product(
         name: "Coca Cola",
         pathToImage: "cocacola.png",
         preis: 1.3,
-        menge: 100));
-    sortiment.add(Product(
+        menge: 100, id: null));
+    DataWarehouse.sortiment.add(Product(
         name: "Coca Cola Zero",
         pathToImage: "cocacolazero.png",
         preis: 1.3,
-        menge: 100));
-    sortiment.add(Product(
-        name: "Fanta", pathToImage: "fanta.png", preis: 1.3, menge: 100));
-    sortiment.add(
-        Product(name: "Cay", pathToImage: "cay.png", preis: 0.5, menge: 100));
-    sortiment.add(
-        Product(name: "Toast", pathToImage: "toast.png", preis: 2, menge: 100));
+        menge: 100, id: null));
+    DataWarehouse.sortiment.add(Product(
+        name: "Fanta", pathToImage: "fanta.png", preis: 1.3, menge: 100, id: null));
+    DataWarehouse.sortiment.add(
+        Product(name: "Cay", pathToImage: "cay.png", preis: 0.5, menge: 100, id: null));
+    DataWarehouse.sortiment.add(
+        Product(name: "Toast", pathToImage: "toast.png", preis: 2, menge: 100, id: null));
 
     notifyListeners();
   }
 
-  void schuldenObjektBezahlt(SchuldenObjekt so) {
-    so.bezahlt = true;
-    kasse.addSaldo(so.product.getPrice());
+  void dw_perform(){
     notifyListeners();
   }
 
-  void bezahleAlleSchulden() {
-    for (SchuldenObjekt s in kassen_kunde.schulden_objekte.where((SchuldenObjekt e) => !e.bezahlt)) {
-      schuldenObjektBezahlt(s);
-    }
-    //kassen_kunde.schulden_objekte.map((e) {e.bezahlt = true;});
-    notifyListeners();
-  }
-
-  void bezahleAlleSchuldenDirekt() {
-    for (SchuldenObjekt s in kunde.schulden_objekte.where((SchuldenObjekt e) => !e.bezahlt)) {
-      schuldenObjektBezahlt(s);
-    }
-    //kassen_kunde.schulden_objekte.map((e) {e.bezahlt = true;});
-    notifyListeners();
-  }
-
-  void entferneSchuldenObjekt(SchuldenObjekt so){
-    kassen_kunde.entferneSchuldenObjekt(so);
-    notifyListeners();
-  }
-
-  void changeAbkassieren(bool change) {
-    abkassieren = change;
-    notifyListeners();
-  }
-
-  void reduce_menge(Product product){
-    product.menge -= 1;
-
-  }
-
-  void clear_kunde(){
-    kunde = null;
-    notifyListeners();
-  }
-
-  void clear_kassen_kunde(){
-    kassen_kunde = null;
-    notifyListeners();
-  }
 }
 
 class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
+
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      var appState = context.read<MyAppState>();
+      DataWarehouse.refresh();
+      appState.dw_perform();
+    });
+  }
   @override
   Widget build(BuildContext context) {
     Widget page;
@@ -265,12 +165,13 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class HomePage extends StatelessWidget {
-  void addSchuldenToCustomer(kunde, products_n, products_i) {
+  void addSchuldenToCustomer(Kunde kunde, products_n, products_i) {
     var list = List.generate(products_i.length(), (i) => i);
     for (var i in list) {
       var list1 = List.generate(products_n[i], (j) => j);
       for (var k in list1) {
         kunde.addSchuldenObjekt(products_i[i]);
+        //sleep(Duration(seconds: 2));
       }
     }
   }
@@ -279,9 +180,9 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
     var newValue =
-        appState.kunde != null ? appState.kunde.getFullname() : "Kunde";
-    var selected_products = appState.current_produkte;
-    var sortiment = appState.sortiment;
+        DataWarehouse.kunde != null ? DataWarehouse.kunde?.getFullname() : "Kunde";
+    var selected_products = DataWarehouse.current_produkte;
+    var sortiment = DataWarehouse.sortiment;
 
     var products_n = [];
     var products_i = [];
@@ -333,9 +234,10 @@ class HomePage extends StatelessWidget {
                 // Weitere Textstilattribute...
               ),
               onChanged: (change) {
-                appState.updateKunde(change);
+                DataWarehouse.updateKunde(change);
+                appState.dw_perform();
               },
-              items: appState.kunden.map((e) {
+              items: DataWarehouse.kunden.map((e) {
                 return DropdownMenuItem<Kunde>(
                   value: e,
                   child: Text("${e.vorname} ${e.nachname}"),
@@ -347,7 +249,8 @@ class HomePage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                appState.clearCurrentProdukte();
+                DataWarehouse.clearCurrentProdukte();
+                appState.dw_perform();
               },
               child: Text('Lösche'),
               style: ElevatedButton.styleFrom(
@@ -359,9 +262,12 @@ class HomePage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                appState.addCosts(products_i, products_n);
-                appState.clear_kunde();
-                appState.clearCurrentProdukte();
+                DataWarehouse.addCosts(products_i, products_n);
+                appState.dw_perform();
+                DataWarehouse.clear_kunde();
+                appState.dw_perform();
+                DataWarehouse.clearCurrentProdukte();
+                appState.dw_perform();
               },
               child: Text('Fertig'),
               style: ElevatedButton.styleFrom(
@@ -373,10 +279,14 @@ class HomePage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                appState.addCosts(products_i, products_n);
-                appState.bezahleAlleSchuldenDirekt();
-                appState.clear_kunde();
-                appState.clearCurrentProdukte();
+                DataWarehouse.addCosts(products_i, products_n);
+                appState.dw_perform();
+                DataWarehouse.bezahleAlleSchuldenDirekt();
+                appState.dw_perform();
+                DataWarehouse.clear_kunde();
+                appState.dw_perform();
+                DataWarehouse.clearCurrentProdukte();
+                appState.dw_perform();
               },
               child: Text('Sofort Bezahlen'),
               style: ElevatedButton.styleFrom(
@@ -391,6 +301,18 @@ class HomePage extends StatelessWidget {
                 appState.testdaten();
               },
               child: Text('Test'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.yellow,
+              ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                DataWarehouse.kunden.forEach((Kunde element) {element.schulden_objekte!.forEach((SchuldenObjekt element1) { print("Name: ${element.vorname} ${element.vorname} ${element.nachname}, Produkt: ${element1.product.name}, ID: ${element1.id}");}); });
+              },
+              child: Text('Test2'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.yellow,
               ),
@@ -473,11 +395,12 @@ class ProductPage extends StatelessWidget {
             ElevatedButton(
               child: Text('Hinzufügen'),
               onPressed: () {
-                appState.addProductToSortiment(
+                DataWarehouse.addProductToSortiment(
                     nameController.text.toString(),
                     double.parse(priceController.text.toString()),
                     path,
                     int.parse(amountController.text.toString()));
+                appState.dw_perform();
                 Navigator.of(context).pop();
               },
             ),
@@ -533,7 +456,7 @@ class ProductPage extends StatelessWidget {
             DataColumn(label: Text("Preis")),
             DataColumn(label: Text("Menge"))
           ],
-          rows: appState.sortiment
+          rows: DataWarehouse.sortiment
               .map((e) => DataRow(
                       cells: [
                         DataCell(Text(e.name.toString())),
@@ -552,10 +475,27 @@ class ProductPage extends StatelessWidget {
   }
 }
 
-class CustomerPage extends StatelessWidget {
+class CustomerPage extends StatefulWidget {
+  @override
+  State<CustomerPage> createState() => _CustomerPageState();
+}
+
+class _CustomerPageState extends State<CustomerPage> {
   TextEditingController vornameController = TextEditingController();
+
   TextEditingController nachnameController = TextEditingController();
+
   TextEditingController saldoController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      var appState = context.read<MyAppState>();
+      DataWarehouse.refresh();
+      appState.dw_perform();
+    });
+  }
 
   void _openAddDialog(BuildContext context) {
     var appState = context.read<MyAppState>();
@@ -593,10 +533,11 @@ class CustomerPage extends StatelessWidget {
             ElevatedButton(
               child: Text('Hinzufügen'),
               onPressed: () {
-                appState.addKunde(
+                DataWarehouse.addKunde(
                     vornameController.text,
                     nachnameController.text,
                     double.parse(saldoController.text));
+                appState.dw_perform();
                 Navigator.of(context).pop();
               },
             ),
@@ -617,7 +558,14 @@ class CustomerPage extends StatelessWidget {
                 onPressed: () {
                   _openAddDialog(context);
                 },
-                icon: Icon(Icons.add))
+                icon: Icon(Icons.add)),
+            IconButton(
+                onPressed: () {
+                  DataWarehouse.refresh();
+                  appState.dw_perform();
+                },
+                icon: Icon(Icons.abc))
+
           ],
         ),
         DataTable(
@@ -625,7 +573,7 @@ class CustomerPage extends StatelessWidget {
               DataColumn(label: Text("Name")),
               DataColumn(label: Text("Saldo")),
             ],
-            rows: appState.kunden
+            rows: DataWarehouse.kunden
                 .map((e) => DataRow(cells: [
                       DataCell(Text("${e.vorname} ${e.nachname}")),
                       DataCell(Text("${e.getSaldo().toStringAsFixed(2)}€")),
@@ -640,8 +588,7 @@ class AbkassierenPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var kunde = appState.kassen_kunde;
-    var abkassieren = appState.abkassieren;
+    var kunde = DataWarehouse.kassen_kunde;
 
     return Column(
       children: [
@@ -658,9 +605,10 @@ class AbkassierenPage extends StatelessWidget {
                 fontSize: 16,
               ),
               onChanged: (change) {
-                appState.updateKassenKunde(change);
+                DataWarehouse.updateKassenKunde(change);
+                appState.dw_perform();
               },
-              items: appState.kunden.map((e) {
+              items: DataWarehouse.kunden.map((e) {
                 return DropdownMenuItem<Kunde>(
                   value: e,
                   child: Text("${e.vorname} ${e.nachname}"),
@@ -681,7 +629,7 @@ class AbkassierenPage extends StatelessWidget {
           ],
           rows: kunde != null
               ? kunde.schulden_objekte
-                  .where((SchuldenObjekt e) => !e.bezahlt)
+                  !.where((SchuldenObjekt e) => !e.bezahlt!)
                   .map((e) => DataRow(
                         cells: [
                           DataCell(Text(e.product.name)),
@@ -692,13 +640,15 @@ class AbkassierenPage extends StatelessWidget {
                               IconButton(
                                 icon: Icon(Icons.money, color: Colors.green),
                                 onPressed: () {
-                                  appState.schuldenObjektBezahlt(e);
+                                  DataWarehouse.schuldenObjektBezahlt(e);
+                                  appState.dw_perform();
                                 },
                               ),
                               IconButton(
                                 icon: Icon(Icons.cancel, color: Colors.red,),
                                 onPressed: (){
-                                  appState.entferneSchuldenObjekt(e);
+                                  DataWarehouse.entferneSchuldenObjekt(e);
+                                  appState.dw_perform();
                                 },
                               )
                             ],
@@ -715,12 +665,14 @@ class AbkassierenPage extends StatelessWidget {
             Text("Bezahle alles:"),
             IconButton(
                 onPressed: () {
-                  appState.bezahleAlleSchulden();
-                  appState.clear_kassen_kunde();
+                  DataWarehouse.bezahleAlleSchulden();
+                  appState.dw_perform();
+                  DataWarehouse.clear_kassen_kunde();
+                  appState.dw_perform();
                 },
                 icon: Icon(Icons.payment)),
             
-            kunde != null ? Text("Insgesamt: ${(0 - appState.kassen_kunde?.getSaldo()).toStringAsFixed(2)}€"):Text(""),
+            kunde != null ? Text("Insgesamt: ${(0 - DataWarehouse.kassen_kunde!.getSaldo()).toStringAsFixed(2)}€"):Text(""),
           ],
         )
       ],
@@ -732,13 +684,11 @@ class KassenPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var kunde = appState.kassen_kunde;
-    var abkassieren = appState.abkassieren;
 
     return Column(
       children: [
         Text("Ihr Saldo beträgt momentan:"),
-        BigCard(txt: "${appState.kasse.saldo.toStringAsFixed(2)}€")
+        BigCard(txt: "${Kasse.saldo.toStringAsFixed(2)}€")
       ],
     );
   }
@@ -752,7 +702,7 @@ class EmployeesPage extends StatelessWidget {
     var appState = context.watch<MyAppState>();
     void _openChooseProductDialog(BuildContext context) {
       var appState = context.read<MyAppState>();
-      var sortiment = appState.sortiment;
+      var sortiment = DataWarehouse.sortiment;
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -817,7 +767,7 @@ class EmployeesPage extends StatelessWidget {
               ElevatedButton(
                 child: Text('Fertig'),
                 onPressed: () {
-                  appState.kasse.saldo -= double.parse(auszahlungsController.text);
+                  Kasse.saldo -= double.parse(auszahlungsController.text);
                   Navigator.of(context).pop();
                 },
               ),
@@ -856,7 +806,7 @@ class EmployeesPage extends StatelessWidget {
               ElevatedButton(
                 child: Text('Fertig'),
                 onPressed: () {
-                  appState.kasse.saldo += double.parse(einzahlungsController.text);
+                  Kasse.saldo += double.parse(einzahlungsController.text);
                   Navigator.of(context).pop();
                 },
               ),
@@ -901,13 +851,13 @@ class productpicture_withbutton extends StatelessWidget {
             child: SizedBox(
               width: 100, // Setzen Sie hier die gewünschte Breite des Bildes
               height: 100, // Setzen Sie hier die gewünschte Höhe des Bildes
-              child: product.pathToImage.startsWith("blob")
+              child: product.pathToImage != null ? product.pathToImage!.startsWith("blob")
                   ? Image.network(
-                      product.pathToImage,
+                      product.pathToImage!,
                       fit: BoxFit
                           .cover, // Wählen Sie den gewünschten BoxFit-Wert
                     )
-                  : Image.asset(product.pathToImage, fit: BoxFit.cover),
+                  : Image.asset(product.pathToImage!, fit: BoxFit.cover) : Image.asset("cay.png", fit: BoxFit.cover),
             ),
           ),
         ),
@@ -925,7 +875,8 @@ class productpicture_withbutton extends StatelessWidget {
                 color: Colors.white,
               ),
               onPressed: () {
-                appState.updateProdukte(product);
+                DataWarehouse.updateProdukte(product);
+                appState.dw_perform();
               },
             ),
           ),
@@ -954,13 +905,13 @@ class productpicture_withnumber extends StatelessWidget {
             child: SizedBox(
               width: 100, // Setzen Sie hier die gewünschte Breite des Bildes
               height: 100, // Setzen Sie hier die gewünschte Höhe des Bildes
-              child: product.pathToImage.startsWith("blob")
+              child: product.pathToImage != null ? product.pathToImage!.startsWith("blob")
                   ? Image.network(
-                      product.pathToImage,
+                      product.pathToImage!,
                       fit: BoxFit
                           .cover, // Wählen Sie den gewünschten BoxFit-Wert
                     )
-                  : Image.asset(product.pathToImage, fit: BoxFit.cover),
+                  : Image.asset(product.pathToImage!, fit: BoxFit.cover) : Image.asset("cay.png", fit: BoxFit.cover),
             ),
           ),
         ),
@@ -1001,13 +952,13 @@ class productpicture_withbutton_for_employees extends StatelessWidget {
             child: SizedBox(
               width: 100, // Setzen Sie hier die gewünschte Breite des Bildes
               height: 100, // Setzen Sie hier die gewünschte Höhe des Bildes
-              child: product.pathToImage.startsWith("blob")
+              child: product.pathToImage != null ? product.pathToImage!.startsWith("blob")
                   ? Image.network(
-                product.pathToImage,
+                product.pathToImage!,
                 fit: BoxFit
                     .cover, // Wählen Sie den gewünschten BoxFit-Wert
               )
-                  : Image.asset(product.pathToImage, fit: BoxFit.cover),
+                  : Image.asset(product.pathToImage!, fit: BoxFit.cover) : Image.asset("cay.png", fit: BoxFit.cover),
             ),
           ),
         ),
@@ -1025,7 +976,7 @@ class productpicture_withbutton_for_employees extends StatelessWidget {
                 color: Colors.white,
               ),
               onPressed: () {
-                appState.reduce_menge(product);
+                DataWarehouse.reduce_menge(product);
               },
             ),
           ),
